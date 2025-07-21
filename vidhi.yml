@@ -1,0 +1,29 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to create an S3 bucket and an SQS queue
+
+Resources:
+
+  VidhiS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: vidhi-cfn-bucket
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  VidhiSQSQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: vidhi-cfn-queue
+
+Outputs:
+
+  S3BucketName:
+    Description: Name of the created S3 bucket
+    Value: !Ref VidhiS3Bucket
+
+  SQSQueueURL:
+    Description: URL of the created SQS queue
+    Value: !Ref VidhiSQSQueue

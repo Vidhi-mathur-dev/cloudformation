@@ -1,29 +1,51 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template to create an S3 bucket and an SQS queue
+Description: EC2 (no key pair) + S3 + SQS setup
 
 Resources:
+
+  VidhiEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId: ami-0e670eb768a5fc3d4  # ✅ AMI for ap-south-1 (Ubuntu 22.04)
+      SecurityGroupIds:
+        - !Ref VidhiSecurityGroup
+      Tags:
+        - Key: Name
+          Value: NoKeyEC2Instance
+
+  VidhiSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and ICMP
+      VpcId: !Ref DefaultVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 0.0.0.0/0
+
+  DefaultVPC:
+    Type: AWS::EC2::VPC::Id
 
   VidhiS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: vidhi-cfn-bucket
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
+      BucketName: vidhi-no-key-bucket
 
   VidhiSQSQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: vidhi-cfn-queue
+      QueueName: vidhi-no-key-queue
 
 Outputs:
-
-  S3BucketName:
-    Description: Name of the created S3 bucket
+  InstanceId:
+    Value: !Ref VidhiEC2Instance
+  BucketName:
     Value: !Ref VidhiS3Bucket
-
-  SQSQueueURL:
-    Description: URL of the created SQS queue
+  QueueURL:
     Value: !Ref VidhiSQSQueue
